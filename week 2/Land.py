@@ -41,9 +41,12 @@ def getDataCSV():
                     land[item] = 'N/A'
 
             # make dict for json
-            lands[land[0]] = land[1], land[2], land[3], land[4]
+            lands[land[0]] = ({'Region': land[1],
+            'Pop. Density (per sq. mi.)': land[2],
+            'Infant mortality (per 1000 births)': land[3],
+            'GDP ($ per capita) dollars': land[4]})
 
-            # make the 2 arrays with the usefull data
+            # make the 2 arrays with the usefull data for graphs
             if  land[4] != "N/A":
                 GDP.append(int(land[4]))
             if land[3] != "N/A":
@@ -53,17 +56,21 @@ def getDataCSV():
     return [lands, GDP, infant]
 
 def makeHist(GDP):
-    # calculate the mean en sd for the 95% interval (filtering outliers)
+    # calculate the mean en sd for the 99% interval (filtering outliers)
     mean = statistics.mean(GDP)
     sd = statistics.stdev(GDP)
-    # throw away data outside the 95% interval
-    GDP_Final = [x for x in GDP if (x > mean - 2 * sd and x < mean + 2 * sd)]
-    print(GDP_Final[-1])
+    # throw away data outside the 99% interval
+    GDP_Final = [x for x in GDP if (x > mean - 3 * sd and x < mean + 3 * sd)]
+
+    # print data for exercise
+    print("This involves the data of GDP")
+    print("the mean is", statistics.mean(GDP_Final))
+    print("the mode is", max(set(GDP_Final), key=GDP_Final.count))
+    print("the median is", statistics.median(GDP_Final))
 
     #Create the bins for the histogram
     binJump = int((GDP_Final[-1]-GDP_Final[0])/amoundOfBins)
-    bins = [GDP_Final[0]+bin*binJump for bin in range(1,amoundOfBins)]
-    print(bins[-1])
+    bins = [GDP_Final[0]+bin*binJump for bin in range(0,amoundOfBins+1)]
 
     #plot hist with the values and bins.
     plt.hist(GDP_Final, bins, histtype='bar', rwidth=0.9)
@@ -73,75 +80,29 @@ def makeHist(GDP):
     plt.show()
     return
 
+def makeBoxplot(infant):
+    # print data for exercise
+    print("THe underlying involves the infant mortality")
+    print("The Minimum is", infant[0])
+    print("The First Quartile is", np.percentile(infant, 25))
+    print("The Median is", np.percentile(infant, 50))
+    print("The Third Quartile is", np.percentile(infant, 75))
+    print("The Maximum is", infant[-1])
+
+    # create boxplot with title
+    ax = sns.boxplot(infant).set_title("Infant mortality (per 1000 births), around the world")
+    plt.show()
+
 if __name__ == "__main__":
 
     # get data and visualize data with panda.
     data = getDataCSV()
     df = pd.DataFrame(data[0])
 
+    # call the programs to make the plots
     makeHist(sorted(data[1]))
-
-    # create boxplot with title
-    ax = sns.boxplot(data[2]).set_title("Infant mortality (per 1000 births), around the world")
-    plt.show()
+    makeBoxplot(sorted(data[2]))
 
     # write json
     with open('data.json', 'w') as outfile:
         json.dump(data[0], outfile)
-
-    # df2 = pd.DataFrame(region)
-    #
-    # for item in df2:
-    #     print(item[0])
-    # yLabel = []
-    #
-    # print(np.mean(region['BALTICS']))
-
-            # lands.append(str(item))
-            # GDP.append(df.get(item)[3])
-
-    # plt.bar(lands, GDP)
-    # plt.ylabel('Usage')
-    # plt.title('Programming language usage')
-    # plt.show()
-
-    # landGDP = np.array(df[['Country', 'GDP']]).tolist()
-    #
-    # for value in landGDP:
-    #     if value[1] == 'N/A':
-    #         landGDP.remove(value)
-    #
-    # print(landGDP[1][1])
-
-    # print(np.mean(landGDP.transpose[2]))
-    # print(landGDP)
-
-    # for value in range(len(df['Country'])):
-    #     if df['GDP'][value] == 'N/A':
-    #         print('gotcha')
-    #     else:
-
-
-    # Values = df['GDP']
-    # for value in range(Values):
-    #     if Values[value] == 'N/A'
-    #
-
-    # print(statistics.stdev(int(df['GDP'])))
-    # print(Values)
-    # print(df)
-
-    # # //////////////////////////////////////////////////////////////////////////
-    # df = pd.DataFrame(getDataCSV())
-    #
-    # region = {}
-    # xLabel = []
-    #
-    # for item in df:
-    #     if df.get(item)[3] != 'N/A':
-    #         if df.get(item)[0] in region:
-    #             region[df.get(item)[0]].append(int(df.get(item)[3]))
-    #         else:
-    #             region[df.get(item)[0]] = [int(df.get(item)[3])]
-    #             xLabel.append(df.get(item)[0])
-    # # ///////////////////////////////////////////////////////////////////////
