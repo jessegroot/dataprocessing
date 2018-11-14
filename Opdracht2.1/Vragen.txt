@@ -1,0 +1,17 @@
+Explain the difference between the == operator and the === operator.
+
+  == = equal also includes "1" == 1
+  === = equal and the same "1" === 1 is not true only 1 === 1
+
+Explain what a closure is. (Note that JavaScript programs use closures very often.)
+
+  Witch closure you can give items to the layer under you while normally when you get out of a
+  function or loop you forget everything that was used (and did not already exist)
+
+Explain what higher order functions are.
+
+  A function that changes other functions
+
+Explain what a query selector is and give an example line of JavaScript that uses a query selector.
+
+  --- not enought time ---
