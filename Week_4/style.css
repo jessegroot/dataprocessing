@@ -1,0 +1,15 @@
+body {
+    background-color: white;
+    color: black;
+}
+h1 {
+  color:black;
+  front-weight: bold;
+  front-size: 30px;
+}
+h3 {
+  color:black;
+  font-weight: normal;
+  font-style: italic;
+  front-size: 10px;
+}
