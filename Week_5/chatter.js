@@ -18,19 +18,14 @@ function startProgram (country) {
 
   var requests = [d3.json(womenInScience), d3.json(consConf)];
 
-  // txtFile.send();
-
   // only continues if all requests are complete
   Promise.all(requests).then(function(response) {
     data = doFunction(response);
     dataStyle = makeAxis(data[0], data[1], data[2]);
-    console.log(data[0])
     makeChatter(data[0], country, dataStyle, data[1], data[2])
   }).catch(function(e){
     throw(e);
   });
-
-
 };
 
 function makeChatter(data, land, dataStyle, yRange, xRange) {
@@ -51,37 +46,13 @@ function makeChatter(data, land, dataStyle, yRange, xRange) {
     let list = [];
     var years = Object.keys(data[dataLand]);
     years.forEach(function(year) {
-      if (i === 0){
-        colorLand = "#e57b22"
-      } else if (i === 1) {
-        colorLand = "#000fe3"
-      } else if (i === 2) {
-        colorLand = "#fff85b"
-      } else if (i === 3) {
-        colorLand = "#000000"
-      } else if (i === 4) {
-        colorLand = "#183133"
-      } else {
-        colorLand = "#34a95f"
-      }
-      array = [xScale(data[dataLand][year].WomenPercentage)+dataStyle.margin.left, yScale(data[dataLand][year].ConsumerConf)+dataStyle.margin.top, year, colorLand, dataLand];
+      array = [xScale(data[dataLand][year].WomenPercentage)+dataStyle.margin.left, yScale(data[dataLand][year].ConsumerConf)+dataStyle.margin.top, year, dataLand];
       list.push(array);
     });
     totalList.push(list)
     totalLands.push(dataLand)
   })
-  //
-  // var years = Object.keys(data[land]);
-  // years.forEach(function(year) {
-  //   array = [xScale(data[land][year].WomenPercentage)+dataStyle.margin.left,yScale(data[land][year].ConsumerConf)+dataStyle.margin.top,year];
-  //   list.push(array);
-  // });
 
-  // color = d3.scaleLinear()
-  //   .domain([d3.min(years),d3.max(years)])
-  //   .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
-  //
-  // console.log(color(2012))
   canvas = dataStyle.canvas.selectAll("circle")
   totalList.forEach(function(d, q){
     canvas
@@ -91,7 +62,7 @@ function makeChatter(data, land, dataStyle, yRange, xRange) {
       .attr("cx", function(d){ return d[0] })
       .attr("cy", function(d){ return d[1] })
       .attr("r", 5)
-      .style("fill", function(d){ return d[3] })
+      .style("fill", function(d){ return dataStyle.colorScale(d[3]) });
   })
 
   d3.select("body").select("#graph").select("ul").selectAll("li")
@@ -99,7 +70,7 @@ function makeChatter(data, land, dataStyle, yRange, xRange) {
     .enter()
     .append("li")
     .append("a")
-    .text(function(d, i){ return d[0][4] })
+    .text(function(d, i){ return d[0][3] })
     .on("mouseover", function(d, i){
       handleMouseOver(totalList, dataStyle, i)})
     .on("mouseout", function(d, i){
@@ -116,7 +87,7 @@ function handleMouseOver(totList, dataStyle, i) {
     .attr("cx", function(d){ return d[0] })
     .attr("cy", function(d){ return d[1] })
     .attr("r", 5)
-    .style("fill", function(d){ return d[3] })
+    .style("fill", function(d){ return dataStyle.colorScale(d[3]) })
 
   node = dataStyle.canvas.selectAll(".node")
     .data(totList[i])
@@ -141,7 +112,7 @@ function handleMouseOut(totList, dataStyle, i) {
       .attr("cx", function(d){ return d[0] })
       .attr("cy", function(d){ return d[1] })
       .attr("r", 5)
-      .style("fill", function(d){ return d[3] })
+      .style("fill", function(d){ return dataStyle.colorScale(d[3]) })
   })
 }
 
@@ -153,9 +124,9 @@ function makeAxis (data, yRange, xRange) {
       margin = { top: 50, right: 100, bottom: 50, left: 50 }
       r = 1;
 
-    // make width and height for graph (exluding space for labels)
-    var width = canvasWidth - margin.left - margin.right;
-    var height = canvasHeight - margin.bottom - margin.top;
+  // make width and height for graph (exluding space for labels)
+  var width = canvasWidth - margin.left - margin.right;
+  var height = canvasHeight - margin.bottom - margin.top;
 
   // make the correct scaling for the x and y labels
   var xScale = d3.scaleLinear()
@@ -165,11 +136,13 @@ function makeAxis (data, yRange, xRange) {
     .domain([d3.max(yRange)+r, d3.min(yRange)-r])
     .range([0, height]);
 
-  colorScale = d3.scaleOrdinal()
-    .domain(function())
-    .range(d3.schemeCategory10)
+  var lands = Object.keys(data)
+  var listLands = []
+  lands.forEach(function(d){ return listLands.push(d) })
 
-  console.log(colorScale("Netherlands"));
+  colorScale = d3.scaleOrdinal()
+    .domain(listLands)
+    .range(d3.schemeCategory10)
 
   // make the x and y axis somehow also does labeling....
   var x_axis = d3.axisBottom()
@@ -182,6 +155,25 @@ function makeAxis (data, yRange, xRange) {
     .append("svg")
     .attr("width", canvasWidth)
     .attr("height", canvasHeight);
+
+  canvas.selectAll("bar")
+    .data(listLands)
+    .enter()
+    .append("rect")
+    .attr("x", (canvasWidth - margin.right))
+    .attr("y", function(d, i){ return (margin.top + 30*i)})
+    .attr("height", 8)
+    .attr("width", 8)
+    .style("fill", function(d){ return colorScale(d) });
+
+  canvas.selectAll("labels")
+    .data(listLands)
+    .enter()
+    .append("text")
+    .attr("dx", (canvasWidth - margin.right + 10))
+    .attr("dy", function(d, i){ return (margin.top + 30*i + 8)})
+    .style("font-size", "10px")
+    .text(function(d){ return d });
 
   // makes sure g (the y axis) starts at the right place
   canvas.append("g")
@@ -213,7 +205,7 @@ function makeAxis (data, yRange, xRange) {
     .style("text-anchor", "middle")
     .text("The Consumer Confidence");
 
-  graphStyle = {width: width, height: height, margin: margin, radius: 2, xScale, yScale, canvas};
+  graphStyle = {width: width, height: height, margin: margin, radius: 2, xScale, yScale, canvas, colorScale};
 
   return graphStyle;
 }
