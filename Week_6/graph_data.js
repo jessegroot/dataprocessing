@@ -19,6 +19,7 @@ function main() {
         // get json in variable
         var data = JSON.parse(txtFile.responseText);
 
+        // get variables for graphs
         var style = graph_data(data)
         makeGraph(data, style)
       };
@@ -30,53 +31,41 @@ function main() {
 
 function graph_data(data) {
 
-  lands = Object.keys(data)
-  listLands = []
-  listYValues = []
-  listTotalYValues = []
-  listValuesLands = []
+  // make list that will be used
+  var lands = Object.keys(data)
+  // list for labeling xAxis
+  var listLands = []
+  // list for grouped yAxis
+  var listYValues = []
+  // list for stacked yAxis
+  var listTotalYValues = []
+  // list for bars
+  var listValuesLands = [[],[],[],[]]
 
-  list1 = []
-  list2 = []
-  list3 = []
-  list4 = []
-
+  // push values in correct list for d3
   lands.forEach(function(land) {
     listYValues.push(parseInt(data[land]["EXP"]/1000))
     listYValues.push(parseInt(data[land]["IMP"]/1000))
     listTotalYValues.push(parseInt(data[land]["EXP"]/1000)+parseInt(data[land]["IMP"]/1000))
     listLands.push(land)
-    list1.push(parseInt(data[land]["realIMP"]/1000))
-    list2.push(parseInt(data[land]["IMP"]/1000) - parseInt(data[land]["realIMP"]/1000))
-    list3.push(parseInt(data[land]["realEXP"]/1000))
-    list4.push(parseInt(data[land]["EXP"]/1000) - parseInt(data[land]["realEXP"]/1000))
+    listValuesLands[0].push(parseInt(data[land]["realIMP"]/1000))
+    listValuesLands[2].push(parseInt(data[land]["IMP"]/1000) - parseInt(data[land]["realIMP"]/1000))
+    listValuesLands[1].push(parseInt(data[land]["realEXP"]/1000))
+    listValuesLands[3].push(parseInt(data[land]["EXP"]/1000) - parseInt(data[land]["realEXP"]/1000))
   })
-  listValuesLands.push(list1, list2, list3, list4)
 
-  importValues = d3.stack()
-    .keys(d3.range(2))
-    (d3.transpose(listValuesLands)) // stacked yz
-    .map((data, i) => data.map(([y0, y1]) => [y0, y1, i]))
-
-  exportValues = d3.stack()
-    .keys(d3.range(2,4))
-    (d3.transpose(listValuesLands)) // stacked yz
-    .map((data, i) => data.map(([y0, y1]) => [y0, y1, i]))
-
-  listValuesLands = []
-  listValuesLands.push(list1, list3, list2, list4)
-
-  impExpStacked = d3.stack()
+  // stacked list for bars
+  var impExpStacked = d3.stack()
     .keys(d3.range(4))
     (d3.transpose(listValuesLands)) // stacked yz
     .map((data, i) => data.map(([y0, y1]) => [y0, y1, i]))
 
-  // neurtal data of the chatterplot
+  // size of bargraph and margins
   var canvasBarchardWidth = 900,
       canvasBarchardHeight = 500,
       margin = { top: 30, right: 80, bottom: 50, left: 60 };
 
-  // neurtal data of the chatterplot
+  // size of sunburst and margins
   var canvasSunWidth = 400,
       marginSun = { top: 30, right: 30, bottom: 50, left: 50 };
 
@@ -84,26 +73,27 @@ function graph_data(data) {
   var width = canvasBarchardWidth - margin.left - margin.right;
   var height = canvasBarchardHeight - margin.bottom - margin.top;
 
-  // make canvasBarchard in correct place for chatterplot
+  // make canvasBarchard in correct place for barchard
   canvasBarchard = d3.select(".barContainer")
     .append("svg")
     .attr("width", canvasBarchardWidth)
     .attr("height", canvasBarchardHeight);
 
+  // make canvasSun for the sunburst
   canvasSun = d3.select("#graphs").select(".pieContainter")
     .append("svg")
     .attr("width", canvasSunWidth)
     .attr("height", canvasSunWidth);
 
   // saves all the data that is going to be used
-  graphStyle = ({width: width, height: height, impExpStacked: impExpStacked,
+  var graphStyle = ({width: width, height: height, impExpStacked: impExpStacked,
     margin: margin, canvasSun: canvasSun, marginSun: marginSun, listYValues: listYValues,
-    listRealYValues: listTotalYValues, importValues: importValues,
-    expertValues: exportValues, listLands: listLands,
-    barData: listValuesLands, canvasBarchard: canvasBarchard});
+    listRealYValues: listTotalYValues, listLands: listLands, canvasBarchard: canvasBarchard});
 
+  // make labels for barchard
   getLayout(graphStyle);
 
+  // return info needed for graphs
   return graphStyle
 }
 
@@ -115,9 +105,10 @@ function getLayout(style) {
     .style("text-anchor", "middle")
     .text("Import/Export Countries and their pass on resorces");
 
+  // y label
   style.canvasBarchard.append("text")
   .attr("transform","translate( " + (style.margin.left) + "," + (style.height/2) + ")")
-  .text("trade of county per thousand goods")
+  .text("trade in goods of counties per thousand")
   .attr("y", 13)
   .attr("x", (-style.height/2))
   .attr("dy", ".35em")
@@ -126,11 +117,14 @@ function getLayout(style) {
 }
 
 function getDataSun(pieData, style) {
- var data = {name: "Sunburst", children: []}
+  // get right data format for sunburst
+  var data = {name: "Sunburst", children: []}
 
- var realImp, realExp, imp, exp;
+  // make the variables
+  var realImp, realExp, imp, exp;
 
- pieData.forEach(function(d,i) {
+  // pair the right values to the right variable
+  pieData.forEach(function(d,i) {
    if (i === 0) {
      realImp = d[1]
    } else if (i === 1) {
@@ -140,9 +134,11 @@ function getDataSun(pieData, style) {
    } else {
      exp = d[1] - imp
    }
- })
- data["children"].push({name: "Import", children: [{name: "RealImport", size: realImp}, {name: "ForExport", size: (imp-realImp)}]})
- data["children"].push({name: "Export", children: [{name: "RealExport", size: realExp}, {name: "Imported", size: (exp-realExp)}]})
+  })
 
- return data
+  // set data in format
+  data["children"].push({name: "Import", children: [{name: "RealImport", size: realImp}, {name: "ForExport", size: (imp-realImp)}]})
+  data["children"].push({name: "Export", children: [{name: "RealExport", size: realExp}, {name: "Imported", size: (exp-realExp)}]})
+
+  return data
 }
