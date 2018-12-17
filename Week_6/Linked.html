@@ -1,0 +1,52 @@
+<!--
+Made by: Jesse Groot
+Student number: 11012579
+-->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <!-- add needed data -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="./css/chatter.css">
+    <script type="text/javascript" src="d3/d3.js"></script>
+    <script src="graph_data.js"></script>
+    <script src="graph_One.js"></script>
+    <script src="graph_Two.js"></script>
+    <title>LinkedViews of Week 6</title>
+  </head>
+  <body>
+    <!-- add header (same on each page aside from highlight etc) -->
+    <header>
+      <div class="container">
+        <div id="topside">
+          <h1><span class="highlight">LinkedViews</span> of Week 5</h1>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="Home.html">Home</a></li>
+            <!-- highlight the current page -->
+            <li class="current"><a href="Linked.html"><span class="highlight">LinkedViews</span></a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div class="chooice">
+      <ul></ul>
+    </div>
+
+    <div id="graphs">
+      <div class="barContainer"></div>
+      <!-- here is the graph going to be -->
+      <div id="graph_text">
+        <h5>Klik links boven op Grouped of Stacked voor de juiste weergaven.
+        Klik op een bar voor Sunburst van dat land.</h5>
+      </div>
+
+      <div class="pieContainter"></div>
+      <!-- here is the sunburst is going to be -->
+    </div>
+  </body>
+</html>

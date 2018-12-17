@@ -45,11 +45,11 @@ function graph () {
       margin = { top: 20, right: 20, bottom: 50, left: 50 };
 
   // the data since loading didnt work
-  var data = [];
+  var yData = [];
   for (var i = 0; i < 10; i++) {
       // creates random number between 0 and 250
       var newNumber = Math.random() * 250;
-      data.push(newNumber);
+      yData.push(newNumber);
   };
   xData = ["NET","BED", "KET", "GET", "SLE", "TTT", "WDF", "OPT", "GRC", "IHD"];
 
@@ -57,40 +57,23 @@ function graph () {
   var width = canvasWidth - margin.left - margin.right;
   var height = canvasHeight - margin.bottom;
   // make width of each bar
-  var barWidth = (width/(data.length));
+  var barWidth = (width/(yData.length));
 
-  // the data in a few ways but non worked...
+  // // the data in a few ways but non worked...
   // xData = []
   // yData = []
   //
-  // d3.csv("data.csv"), function(data) {
-  //   for (variable in data) {
-  //     if (variable === "LOCATION") {
-  //       xData.push(data[variable]);
-  //     } else if (variable === "Value") {
-  //       yData.push(data[variable]);
-  //       console.log(data[variable]);
-  //     };
-  //   };
-  // };
-  // // console.log(yData)
-  //
   // // Get the data
-  // d3.csv("data.csv", function(error, data) {
-  //   if (error) throw error;
+  // d3.csv("data.csv").then(function(data) {
+  //   // if (error) throw error;
   //
   //   // format the data
   //   data.forEach(function(d) {
-  //     d.LOCATION = +d.LOCATION;
   //     d.Value = +d.Value;
-  //     console.log(d)
-  //     console.log(d.LOCATION)
+  //     yData.push(d.Value);
+  //     xData.push(d.LOCATION);
   //   });
-  //
-  //   // console.log(data)
-  //   // console.log(d.LOCATION)
-  //   // console.log(d.Value)
-  // })
+  // });
 
   // make canvas in correct place
   canvas = d3.select(".barContainer")
@@ -103,7 +86,7 @@ function graph () {
     .domain([0, xData.length-1])
     .range([(margin.left + barWidth/2), width])
   var yScale = d3.scaleLinear()
-    .domain([0, d3.max(data)])
+    .domain([0, d3.max(yData)])
     .range([height, margin.top]);
 
   // makes a line so X and Y label hit each other
@@ -148,18 +131,18 @@ function graph () {
 
   // makes the bars
   canvas.selectAll("rect")
-    .data(data)
+    .data(yData)
     // makes it iterate over the date as --> d
     .enter()
     // makes bar
     .append("rect")
     // selects height of bar from where it has to start
     .attr("y", function(d) {
-      return height - (height-margin.top)/d3.max(data)*d;
+      return height - (height-margin.top)/d3.max(yData)*d;
     })
     // height of the bar
     .attr("height", function(d) {
-      return (height-margin.top)/d3.max(data)*d;
+      return (height-margin.top)/d3.max(yData)*d;
     })
     // selects barPadding
     .attr("width", barWidth - barPadding)
@@ -173,17 +156,15 @@ function graph () {
   // d3.csv("path/to/file.csv")
   //   .row(function(d) { return {key: d.key, value: +d.value}; })
   //   .get(function(error, rows) { console.log(rows); });
-
+  //
   // // get json file name and call XMLHttpRequest
-  // var fileName = "data.csv";
-  // var txtFile = new XMLHttpRequest();
-  // txtFile.onreadystatechange = function() {
-  //     // When file loaded
-  //     if (txtFile.readyState === 4 && txtFile.status == 200) {
-  //       d3.csv(fileName, function(d) {
-  //         console.log(d[0])
-  //       })
-  //     };
-  // };
-  // txtFile.open("GET", fileName);
-  // txtFile.send();
+var fileName = "data.csv";
+var txtFile = new XMLHttpRequest();
+txtFile.onreadystatechange = function() {
+    // When file loaded
+    if (txtFile.readyState === 4 && txtFile.status == 200) {
+        console.log(txtFile.responseText)
+    };
+};
+txtFile.open("GET", fileName);
+txtFile.send();
