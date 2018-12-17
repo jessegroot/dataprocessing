@@ -1,6 +1,6 @@
 # dataprocessing
 
-# for this week check --> https://jessegroot.github.io/dataprocessing/Week_5/chatter.html
+# for this week check --> https://jessegroot.github.io/dataprocessing/Week_6/Linked.html
 
-
-# bij het verweideren van me data.csv bestand kon het script nog wel draaien??
+# Data word omgeschreven naar Json in python
+# data_graph word het eerst gelezen en vanaf hier is de code leesbaar
